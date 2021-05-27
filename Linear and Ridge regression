@@ -1,0 +1,101 @@
+#Import  key libraries
+import numpy as np
+import pandas as pd
+from sklearn import datasets
+import matplotlib.pyplot as plt
+from matplotlib.pylab import rcParams
+rcParams.update({'font.size': 12})
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Ridge
+
+#Import Boston datasets from scikit-learn datasets and load 
+boston_data=datasets.load_boston()
+
+#Describe the dataset 
+print(boston_data.DESCR)
+#print(boston_data)
+
+boston_data_df=pd.DataFrame(boston_data.data,columns=boston_data.feature_names)
+boston_data_df['Price']=boston_data.target
+boston_data_df.head()
+
+#Put the target  in another DataFrame 
+target=pd.DataFrame(boston_data.target,columns=['Price'])
+#Print first five rows 
+target.head(n=5)
+
+newX=boston_data_df.drop('Price',axis=1)
+print(newX)
+
+newY=target['Price']
+#refernce https://towardsdatascience.com/train-test-split-and-cross-validation-in-python-80b61beca4b6 for swplitting the dataset into parts
+X_train, X_test, y_train, y_test = train_test_split(newX,newY, test_size=0.3)
+print(X_train,y_train)
+print(X_test,y_test)
+
+#Liner Regression 
+lr=LinearRegression()
+
+#testing with the test data for linear regression
+
+lr.fit(X_train,y_train)
+
+#score for the LR model
+
+linear_trainig_score=lr.score(X_train,y_train)
+
+print('the score for the linear regression for the training data is: ',linear_trainig_score)
+
+#Ridge Regression
+# refernce https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html for Ridge regression syntax
+rr1=Ridge(alpha=0.01)
+rr2=Ridge(alpha=100)
+
+#testing with the test data for ridge regression
+rr1.fit(X_train,y_train)
+rr2.fit(X_train,y_train)
+
+#score for the Ridge model
+rigde1_training_score=rr1.score(X_train,y_train)
+rigde2_training_score=rr2.score(X_train,y_train)
+
+print('the score for the ridge regression with alpha 0.01 for the training data is: ',(rigde1_training_score))
+print('the score for the ridge regression with alpha 100 for the training data is: ',(rigde2_training_score))
+
+#Is there any difference between the Ridge models with a lower and a higher alpha?
+
+#Ans: The ridge model with a lower alpha value is has almost the same test and training score as the linear regression model and when we plot the graph for the coefficients for this model we can see that the coefficient's magnitude is varying but on the other hand the plot from the higher alpha value is more smoother and constant.
+
+#Computing for the Test datasets
+
+#for linear regression
+lr.fit(X_test,y_test)
+
+linear_test_score=lr.score(X_test,y_test)
+print('the testing score for the linear regression is',linear_test_score)
+
+#For Ridge Regression
+
+rr1.fit(X_test,y_test)
+rr2.fit(X_test,y_test)
+
+rigde1_test_score=rr1.score(X_test,y_test)
+rigde2_test_score=rr2.score(X_test,y_test)
+
+print('the testing score for the ridge model with the alpha value as 0.01 is',rigde1_test_score)
+print('the testing score for the ridge model with the alpha value as 100 is',rigde2_test_score)
+
+liner_coeff=lr.coef_
+ridge1_coeff=rr1.coef_
+ridge2_coeff=rr2.coef_
+
+#plotting the graph
+plt.figure(figsize=(20,10))
+plt.plot(liner_coeff,color='Red',label='Linear Regression Coeffecients')
+plt.plot(ridge1_coeff,color='Purple',label='Ride Regression with alpha0.01 Coeffecients')
+plt.plot(ridge2_coeff,label='Ride Regression with alpha100 Coeffecients')
+plt.xlabel('Coefficient Index')
+plt.ylabel('Coefficient Magnitude')
+plt.legend()
+
