@@ -1,0 +1,103 @@
+from sklearn import datasets
+from sklearn.ensemble import RandomForestClassifier
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+#Use the iris data set from sklearn
+
+iris = datasets.load_iris()
+print(iris.DESCR)
+#print(iris)
+
+#Load the iris dataset. What are the features
+#printing the features of the dataset
+print(iris.feature_names)
+
+##coverting the target values into a dataframe
+target_df=pd.DataFrame(iris.target)
+target_df.columns=['species']
+target_df.head()
+
+#defining the X and Y paramenters and splitting the data into test and training
+#Split the dataset into training and test sets (30%)
+X=iris_df
+y=target_df
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3,random_state=42)
+
+print('the lenghth of the training set is ',len(X_train))
+print('the lenghth of the test set is ',len(X_test))
+
+#Create a Gaussian RandomForestClassifier as clf (2,000 estimators and a depth of 2)
+#importing the Gaussian RandomForestClassifier  and fitting the training dataset
+clf=RandomForestClassifier(n_estimators=2000,max_depth=2)
+clf.fit(X_train,y_train.values.ravel())
+
+
+#reference https://stackoverflow.com/questions/44101458/random-forest-feature-importance-chart-using-python for getting the feature importances.
+#-Determine the feature importance. Which one is the most important?(i answered this question post the accuracy measure)
+
+import numpy as np
+
+#predicting the results from the classifier
+predictions=clf.predict(X_test)
+print('the predictions made by the model for the test datset is ',predictions)
+
+#getting the feature importances of the classifiers and converting them into a Series object for easy manipulation
+feat_importances = pd.Series(clf.feature_importances_, index=iris_df.columns).sort_values(ascending=False)
+print('the importance of features are ',feat_importances)
+
+import matplotlib.pyplot as plt
+
+feat_importances.plot(kind='barh')
+
+#measuring Accuracy
+#Use scikitlearn to determine the accuracy level. What is your assessment?
+from sklearn import metrics
+accuy_score=metrics.accuracy_score(predictions,y_test)
+print('the accuracy score is ',accuy_score)
+
+from sklearn.metrics import  classification_report
+forest_class_report=classification_report(y_test,predictions)
+print(forest_class_report)
+
+#Use the Gradient Boosting algorithm to fit the model and predict test data
+#since it has not been  mentioned to  create new datframes and display the features i am directly proceeding to Gradient Boosting algorithm using the dataframes that i have cretaed in the previous sections.
+from sklearn.ensemble import GradientBoostingClassifier
+
+#defining the new x any y parameter using the  earlier iris dataframes
+new_X=iris_df
+new_y=target_df
+
+#print(new_y)
+
+#splitting the  data into training and the test  sets
+newX_train, newX_test, newy_train, newy_test = train_test_split(new_X, new_y, test_size=0.3,random_state=42)
+
+print('the lenght of the training set is',len(newX_train))
+print('the lenght of the test set is',len(newX_test))
+
+#using the same parameters as that of random forests for comparision purposes
+boosting_model=GradientBoostingClassifier(n_estimators=2000,max_depth=2)
+
+boosting_model.fit(newX_train,newy_train.values.ravel())
+
+from sklearn import metrics
+
+new_boost_pred=boosting_model.predict(newX_test)
+print('the predictions by the model are',new_boost_pred)
+new_boost_accuracy=metrics.accuracy_score(new_boost_pred,newy_test)
+print('the accuracy for the model is',new_boost_accuracy)
+
+#getting the feature importances of the classifiers and converting them into a Series object for easy manipulation
+
+boosting_feat_importances = pd.Series(boosting_model.feature_importances_, index=iris_df.columns).sort_values(ascending=False)
+print(boosting_feat_importances)
+
+import matplotlib.pyplot as plt
+
+boosting_feat_importances.plot(kind='barh')
+
+from sklearn.metrics import  classification_report
+class_report=classification_report(newy_test,new_boost_pred)
+print(class_report)
