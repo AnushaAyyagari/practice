@@ -1,0 +1,105 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pylab as plt
+%matplotlib inline
+
+from google.colab import drive
+drive.mount('/content/gdrive')
+
+from google.colab import files 
+  
+import io
+uploaded = files.upload()
+data = pd.read_csv(io.BytesIO(uploaded['multiTimeline.csv']))
+
+#Just checking for the data types of the columns and then printing them
+print (data.head())
+print( '\n Data Types:')
+print(data.dtypes)
+
+from datetime import datetime
+from pandas import DataFrame as df
+
+#to convert the Month column into DateTime datatype
+con=data['Month']
+data['Month']=pd.to_datetime(data['Month'])
+data.set_index('Month', inplace=True)
+#check datatype of index
+df.head(data,n=5)
+
+#to plot the 'Diet' column
+plt.plot(data['Diet'])
+type(data['Diet'])
+#describing the data
+df.describe(data)
+
+#finding the rooling mean of the both the diet and the the gym columns
+#I am taking the values of the windows as 12 months just for smoothening
+diet_mean=data['Diet'].rolling(window=12).mean()
+plt.figure(figsize=(20,10))
+plt.plot(diet_mean,label='Rolling mean of the diet')
+gym_mean=data['Gym'].rolling(window=12).mean()
+plt.plot(gym_mean,label='Rolling mean of the gym')
+plt.plot(data['Diet'],label='Actual trend of the Diet')
+plt.plot(data['Gym'],label='Actual trend of the Gym')
+plt.legend()
+print(type(diet_mean))
+
+#tried two methods to remove seasonal components form the data,
+#1st used the method of subtraction for Diet how ever i am not using this values for  plotting
+d1=data['Diet'].values.astype(float)
+d2=diet_mean.values.astype(float)
+d3=[]
+for i in range (0,len(d1)):
+  d4=d1[i]-d2[i]
+  d3.append(d4)
+#print(d3)
+
+
+#2nd used the .diff method for the same for Diet 
+# here I took the value of n=1 to take the difference of (i+1 and i)
+
+trend_rem_diet=np.diff(data['Diet'],n=1)
+
+#plotting for the output from .diff method
+
+#used the .diff method for the same for gym again taking n=1
+
+trend_rem_gym=np.diff(data['Gym'],n=1)
+
+#checking for the correrlation amongst all the variables
+
+df.corr(data)
+
+plt.figure(figsize=(20,10))
+#plotting the first order difference data for the diet and gym
+
+plt.plot(trend_rem_diet,label='First order difference for the diet')
+plt.plot(trend_rem_gym,label='First order difference for the diet')
+plt.legend()
+
+#The correlation values for the first order difference of  diet and gym variables
+a=np.corrcoef(trend_rem_diet,trend_rem_gym)
+print(' the correlation values for the first order difference of Diet and gym are', (a[1][0]))
+
+#The correlation values for the original  of  diet and gym variables
+b=data['Diet'].corr(data['Gym'])
+print('the correlation values for the original values  of Diet and gym are',(b))
+
+#plotting the autocorrelation for diet
+plt.figure(figsize=(20,10))
+
+pd.plotting.autocorrelation_plot(data['Diet'])
+
+# please find the reference for this code https://sigmundojr.medium.com/seasonality-in-python-additive-or-multiplicative-model-d4b9cf1f48a7
+
+from statsmodels.tsa.seasonal import seasonal_decompose
+
+plt.figure(figsize=(20,10))
+
+
+
+check_seasonality= seasonal_decompose(df(data), model='additive',extrapolate_trend='freq')
+check_seasonality.seasonal.plot(figsize=(20,10))
+plt.title('The seasonality component of the data')
+
