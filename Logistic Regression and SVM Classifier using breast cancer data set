@@ -1,0 +1,151 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+%matplotlib inline
+from sklearn import datasets
+
+#Load ‘load_breast_cancer’ dataset from sklearn.datasets.
+cancer_data=datasets.load_breast_cancer()
+#print(cancer_data)
+print(cancer_data.DESCR)
+
+#Print the names of the features and Print the names of the labels
+#print(cancer_data) 
+print('the names of the features are',cancer_data.feature_names)
+print('the names of the labels are',cancer_data.target_names)
+
+#Print the shape of the data
+cancer_data.data.shape
+
+#Check the top 5 records of the feature set.
+print(cancer_data.data[0:5])
+
+#Print the cancer labels for the target set.
+print('the target values are ',cancer_data.target)
+print('the labels for the target set are',cancer_data.target_names)
+for i in cancer_data.target_names:
+  if i=='malignant':
+    print(i,'0')
+  else:
+    print(i,'1')
+ 
+ #Split the data (70% training)
+from sklearn.model_selection import train_test_split
+#splitting the dataset
+X_train, X_test, y_train, y_test = train_test_split(cancer_data.data, cancer_data.target,test_size=0.3)
+print('the training data is',X_train,y_train)
+print('the testing data is',X_test,y_test)
+
+from sklearn import svm
+#creating the classifier with default gamma(scale)
+svm_class=svm.SVC(gamma='scale')
+
+# fitting the model for training dataset
+
+svm_class.fit(X_train, y_train)
+
+# Predict the response for training dataset.
+
+predict_results=svm_class.predict(X_test)
+expected=y_test
+print('the predicted values for the test dataset are',predict_results)
+print('the expected values are',expected)
+
+from sklearn import metrics
+
+#Evaluate the model with the ‘metrics’ class specifying the ‘precision’ and ‘recall’ metrics.
+
+precision_val= metrics.precision_score(expected,predict_results)
+print(precision_val)
+
+recall_val=metrics.recall_score(expected,predict_results)
+print(precision_val)
+
+Logistic Regression:
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+%matplotlib inline
+from sklearn import datasets
+
+bcancer_data=datasets.load_breast_cancer()
+
+print(bcancer_data.DESCR)
+
+#converting the data into dataframes
+bcancer_df=pd.DataFrame(bcancer_data.data,columns=bcancer_data.feature_names)
+bcancer_target_df=pd.DataFrame(bcancer_data.target)
+
+#Print the names of the features and Print the names of the labels
+print('the feature names are',bcancer_df.columns)
+print('the label names are',bcancer_data.target_names)
+
+#Print the shape of the data.
+# the shape of the data is
+print('the shape of the data is',bcancer_df.shape)
+#Check the top 5 records of the feature set
+bcancer_df.head(n=5)
+
+#print(bcancer_data)
+#printing the target data and the labels
+print('the label names are',bcancer_data.target_names)
+for i in bcancer_data.target_names:
+  if i=='malignant':
+    print(i,'0')
+  else:
+    print(i,'1')
+bcancer_target_df
+
+#Split the data (70% training)
+from sklearn.model_selection import train_test_split
+X=bcancer_df
+Y=bcancer_target_df
+
+#splitting the dataset
+X_train, X_test, y_train, y_test = train_test_split(X,Y,test_size=0.3)
+#print('the training data is',X_train,y_train)
+#print('the testing data is',X_test,y_test)
+
+from sklearn.linear_model import LogisticRegression
+#importing the logistic regression model and 
+# changing the max_iternations to avoid the below error
+#ConvergenceWarning: lbfgs failed to converge (status=1): STOP: TOTAL NO. of ITERATIONS REACHED LIMIT.
+#refernce https://stackoverflow.com/questions/62658215/convergencewarning-lbfgs-failed-to-converge-status-1-stop-total-no-of-iter
+lr=LogisticRegression(solver='lbfgs', max_iter=10000)
+#using ravel as i am passsing a datframe to the Y variable
+#refernce: https://stackoverflow.com/questions/34165731/a-column-vector-y-was-passed-when-a-1d-array-was-expected
+lr.fit(X_train,y_train.values.ravel())
+
+predicted_values=lr.predict(X_test)
+print(predicted_values)
+#-Generate the classification report.
+#Generate the confusion matrix.
+from sklearn.metrics import confusion_matrix, classification_report
+cm=confusion_matrix(y_test,predicted_values)
+print(cm)
+class_report=classification_report(y_test,predicted_values)
+print(class_report)
+
+# Receiver Operating Curve (ROC)
+expected_values = lr.decision_function(X_test)
+from sklearn.metrics import roc_curve
+fpr, tpr, thresholds = roc_curve(predicted_values, expected_values)
+# Area Under the Curve (AUC)
+from sklearn.metrics import auc
+auc(fpr, tpr)
+# ROC curve with Matplotlib
+import matplotlib.pyplot as plt
+%matplotlib inline
+plt.figure(figsize=(20,10))
+plt.plot(fpr, tpr, color='red', label='Logistic regression (AUC: %.8f)'
+% auc(fpr, tpr))
+plt.plot([0, 1], [0, 1], color='blue', linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.01])
+plt.title('ROC Curve')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.legend(loc="lower right")
+plt.show()
+
