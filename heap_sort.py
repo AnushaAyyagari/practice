@@ -1,4 +1,4 @@
-import math
+
 # the first function here is the heap sort function
 #we are first checking for the lenght of the array, if the array has only one element then we do nothing and say that there no need for sorting
 #if the array has more than one element then we call the function buildheap by passing the array and size of the array as parameters to build a heap.
@@ -26,7 +26,7 @@ import math
 #after Swapping call the heapify function again on the node whose value was swapped.
 
 
-
+import math
 def heapsort(arr):
     size=len(arr)
     #buildheap(arr,size)
